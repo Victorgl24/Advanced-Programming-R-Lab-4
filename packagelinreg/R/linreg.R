@@ -23,8 +23,8 @@ linreg <- function(formula, data) {
   beta_hat <- solve(t(X) %*% X) %*% t(X) %*% y # beta_hat = (X^T*X)-1*X^t*y 
 
   # Calculate fitted values (y_hat) and residuals (e_hat)
-  y_hat <- X %*% beta_hat # Calculates predicted values based on learned regression model
-  e_hat <- y - y_hat # Error between predicted and actual values
+  y_hat <- X %*% beta_hat 
+  e_hat <- y - y_hat 
 
   # Degrees of freedom
   df <- nrow(X) - ncol(X) 
@@ -82,6 +82,21 @@ print.linreg <- function(object) {
   cat("\n")
 }
 
+plot.linreg <- function(object){
+  # TODO: implement function
+}
+
+resid.linreg <- function(object){
+  # TODO: implement function
+}
+
+coef.linreg <- function(object){
+  # TODO: implement function
+}
+
+summary.linreg <- function(object){
+  # TODO: implement function
+}
 data(iris)
 
 mod_object <- linreg(Petal.Length~Species, data = iris)
