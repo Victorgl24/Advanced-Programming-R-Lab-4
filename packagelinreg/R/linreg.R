@@ -10,6 +10,9 @@
 #' data(mtcars)
 #' fit <- linreg(mpg ~ wt + hp, data = mtcars)
 #' print(fit)
+
+
+
 linreg <- function(formula, data) {
 
   # Extract model matrix X and dependent variable y
@@ -17,14 +20,14 @@ linreg <- function(formula, data) {
   y <- data[[all.vars(formula)[1]]]
 
   # Calculate regression coefficients (beta)
-  beta_hat <- solve(t(X) %*% X) %*% t(X) %*% y
+  beta_hat <- solve(t(X) %*% X) %*% t(X) %*% y # beta_hat = (X^T*X)-1*X^t*y 
 
   # Calculate fitted values (y_hat) and residuals (e_hat)
-  y_hat <- X %*% beta_hat
-  e_hat <- y - y_hat
+  y_hat <- X %*% beta_hat # Calculates predicted values based on learned regression model
+  e_hat <- y - y_hat # Error between predicted and actual values
 
   # Degrees of freedom
-  df <- nrow(X) - ncol(X)
+  df <- nrow(X) - ncol(X) 
 
   # Residual variance
   sigma_squared <- sum(e_hat^2) / df
@@ -56,7 +59,33 @@ linreg <- function(formula, data) {
 #'
 #' @param x An object of class "linreg".
 #'
-print.linreg <- function(x) {
+print.linreg <- function(object) {
+  # Extract coefficient names and values
+  coefs <- object$coefficients
+  coef_names <- rownames(coefs)
+  values <- as.vector(coefs)
+  
+  max_width <- max(nchar(coef_names), nchar(format(values, digits = 3, nsmall = 2)))
+  
+  # Format the output
   cat("Coefficients:\n")
-  print(x$coefficients)
+  
+  for (name in coef_names) {
+    cat(format(name, width = max_width, justify = "right"), " ")
+  }
+  cat("\n")
+  
+  # Print the values in a single row, right-aligned under the corresponding names
+  for (value in values) {
+    cat(format(value, digits = 3, nsmall = 2, width = max_width, justify = "right"), " ")
+  }
+  cat("\n")
 }
+
+data(iris)
+
+mod_object <- linreg(Petal.Length~Species, data = iris)
+print(mod_object)
+
+
+
