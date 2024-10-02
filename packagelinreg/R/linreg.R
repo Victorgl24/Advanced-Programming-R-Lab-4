@@ -37,7 +37,6 @@ linreg <- function(formula, data) {
 
   # t-values for each coefficient
   t_beta <- beta_hat / sqrt(diag(var_beta_hat))
-
   # Create and return the linreg object
   linreg_object <- list(
     coefficients = beta_hat,
@@ -86,12 +85,18 @@ plot.linreg <- function(object){
   # TODO: implement function
 }
 
+pred.linreg <- function(object){
+  return(object$fitted_values)
+}
+
 resid.linreg <- function(object){
-  # TODO: implement function
+  return (object$residuals)
 }
 
 coef.linreg <- function(object){
-  # TODO: implement function
+  named_vec = c(as.numeric(object$coefficients))
+  names(named_vec) = rownames(object$coefficients)
+  return (named_vec)
 }
 
 summary.linreg <- function(object){
@@ -100,7 +105,7 @@ summary.linreg <- function(object){
 data(iris)
 
 mod_object <- linreg(Petal.Length~Species, data = iris)
-print(mod_object)
+print(coef.linreg(mod_object))
 
 
 
