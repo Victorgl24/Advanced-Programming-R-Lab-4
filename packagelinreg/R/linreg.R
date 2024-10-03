@@ -94,7 +94,7 @@ resid.linreg <- function(object){
 }
 
 coef.linreg <- function(object){
-  named_vec = c(as.numeric(object$coefficients))
+  named_vec = c(as.numer                                                                                         ic(object$coefficients))
   names(named_vec) = rownames(object$coefficients)
   return (named_vec)
 }
