@@ -81,10 +81,6 @@ print.linreg <- function(object) {
   cat("\n")
 }
 
-plot.linreg <- function(object){
-  # TODO: implement function
-}
-
 pred.linreg <- function(object){
   return(object$fitted_values)
 }
@@ -99,13 +95,67 @@ coef.linreg <- function(object){
   return (named_vec)
 }
 
+#' Plot method for linreg objects using ggplot2
+#'
+#' Plots the residuals vs fitted values using ggplot2, and labels influential points.
+#'
+#' @param object An object of class "linreg".
+#' @return A ggplot2 residuals vs fitted plot with annotated influential points.
+#' @importFrom ggplot2 ggplot aes geom_point geom_hline geom_smooth stat_summary geom_text labs theme_minimal theme element_text
+#' @export
+plot.linreg <- function(object) {
+  # Create a data frame for ggplot
+  plot_data <- data.frame(
+    Fitted = object$fitted.values,
+    Residuals = object$residuals,
+    Index = 1:length(object$residuals)  # Add the observation index
+  )
+  
+  # Set a threshold for labeling large residuals (e.g., standardized residuals > 2)
+  threshold <- 2.685
+  plot_data$Influential <- abs(scale(object$residuals)) > threshold
+  
+  # Create the Residuals vs Fitted plot using ggplot2
+  p <- ggplot(plot_data, aes(x = Fitted, y = Residuals)) +
+    geom_point(shape = 1, color = "black", size = 3, stroke = 1.5) +  # Open circle points
+    
+    # Add a horizontal line at 0
+    geom_hline(yintercept = 0, linetype = "dotted", color = "black", size = 1) +
+    
+    # Add segments to connect medians of residuals for each fitted value
+    stat_summary(fun = median, geom = "line", aes(group = 1), color = "red", size = 1.2) +
+    
+    # Annotate influential points with their observation index
+    ggplot2::geom_text(
+      data = subset(plot_data, Influential == TRUE),  # Only label influential points
+      aes(label = Index),
+      hjust = +1.3, vjust = -0.3, color = "black", size = 3
+    ) +
+    
+    labs(
+      title = "Residuals vs Fitted",
+      x = "Fitted values\n lm(Petal.Length~Species)",
+      y = "Residuals"
+    ) + 
+    theme_minimal() + 
+    theme(
+      panel.grid.major = element_blank(),   # Remove major grid lines
+      panel.grid.minor = element_blank(),   # Remove minor grid lines
+      panel.border = element_rect(color = "black", fill = NA, size = 1),  # Add black border around plot
+      axis.text.y = element_text(angle = 90, vjust = 0.5)  # Rotate y-axis labels 90 degrees
+    )
+  print(p)
+}
+
+
+
 summary.linreg <- function(object){
   # TODO: implement function
 }
 data(iris)
 
 mod_object <- linreg(Petal.Length~Species, data = iris)
-print(coef.linreg(mod_object))
+plot.linreg(mod_object)
 
 
 
