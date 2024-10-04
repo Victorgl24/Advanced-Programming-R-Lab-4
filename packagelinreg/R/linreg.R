@@ -30,7 +30,7 @@ linreg <- R6Class("linreg",
                     sigma_squared = NULL,
                     var_beta_hat = NULL,
                     t_beta = NULL,
-                    
+
                     #' @description
                     #' Constructor method for linear regression model
                     #' Performs the linear regression operation
@@ -43,69 +43,69 @@ linreg <- R6Class("linreg",
                       self$data <- data
                       self$X <- model.matrix(formula, data)
                       self$y <- data[[all.vars(formula)[1]]]
-                      
+
                       # Calculate regression coefficients (beta)
                       self$beta_hat <- solve(t(self$X) %*% self$X) %*% t(self$X) %*% self$y
-                      
+
                       # Calculate fitted values (y_hat) and residuals (e_hat)
                       self$y_hat <- self$X %*% self$beta_hat
                       self$e_hat <- self$y - self$y_hat
-                      
+
                       # Degrees of freedom
                       self$df <- nrow(self$X) - ncol(self$X)
-                      
+
                       # Residual variance
                       self$sigma_squared <- sum(self$e_hat^2) / self$df
-                      
+
                       # Variance of the regression coefficients
                       self$var_beta_hat <- self$sigma_squared * solve(t(self$X) %*% self$X)
-                      
+
                       # t-values for each coefficient
                       self$t_beta <- self$beta_hat / sqrt(diag(self$var_beta_hat))
                     },
-                    
+
                     #' @description
                     #' Prints the coefficients in an orderly manner
                     print = function() {
                       coef_names <- rownames(self$beta_hat)
                       values <- as.vector(self$beta_hat)
                       max_width <- max(nchar(coef_names), nchar(format(values, digits = 3, nsmall = 2)))
-                      
+
                       cat("Coefficients:\n")
                       for (name in coef_names) {
                         cat(format(name, width = max_width, justify = "right"), " ")
                       }
                       cat("\n")
-                      
+
                       for (value in values) {
                         cat(format(value, digits = 3, nsmall = 2, width = max_width, justify = "right"), " ")
                       }
                       cat("\n")
                     },
-                    
+
                     #' @description
                     #' Returns the values that the model predicted
-                                        
+
                     predict = function() {
                       return(self$y_hat)
                     },
-                    
+
                     #' @description
                     #' Returns the models residuals
                     residuals = function() {
                       return(self$e_hat)
                     },
-                    
+
                     #' @description
                     #' Returns the models coefficients as a named vector
                     #' @return coefficients as named vector
-                    
+
                     coefficients = function() {
                       named_vec <- as.numeric(self$beta_hat)
                       names(named_vec) <- rownames(self$beta_hat)
                       return(named_vec)
                     },
-                    
+
                     #' @description
                     #' Plots the residuals vs the fitted values using ggplot2
                     plot = function() {
@@ -120,7 +120,7 @@ linreg <- R6Class("linreg",
                         threshold <- 2.5
                         plot_data$Influential <- abs(scale(self$e_hat)) > threshold
                         p <- ggplot(plot_data, aes(x = Fitted, y = Residuals)) +
-                          geom_point(shape = 1, color = "black", size = 3, stroke = 1.5) + # Circles 
+                          geom_point(shape = 1, color = "black", size = 3, stroke = 1.5) + # Circles
                           geom_hline(yintercept = 0, linetype = "dotted", color = "black", linewidth = 1) + # Dotted y_intercept line
                           stat_summary(fun = median, geom = "line", color = "red", linewidth = 1.2) + # Line intercepting the median
                           geom_text(
@@ -132,8 +132,8 @@ linreg <- R6Class("linreg",
                             title = plot_title,
                             x = paste("Fitted values\n lm(", deparse(self$formula),")"),
                             y = y_label
-                          ) + 
-                          theme_minimal() + 
+                          ) +
+                          theme_minimal() +
                           theme(
                             panel.grid.major = element_blank(),   # Remove major grid lines
                             panel.grid.minor = element_blank(),   # Remove minor grid lines
@@ -151,25 +151,60 @@ linreg <- R6Class("linreg",
                         print(p)
                       }
                       plot_helper(self$e_hat, # The non standardized version
-                                  "Residuals", 
-                                  "Residuals vs Fitted") 
-                      
+                                  "Residuals",
+                                  "Residuals vs Fitted")
+
                       # Standardized sqrt residuals
                       standardized_residuals <- scale(self$residuals())
                       sqrt_abs_standardized_residuals <- sqrt(abs(standardized_residuals))
-                      
+
                       plot_helper(
                         residuals = sqrt_abs_standardized_residuals, # Standardize version
                         plot_title = "Scale−Location",
                         y_label = expression(sqrt(abs("Standardized residuals")))
                       )
                     },
-                    
+
                     #' @description
                     #' Placeholder for implementation of summary function
                     summary = function() {
-                      cat("TODO: Summary method to be implemented\n")
+                      coefs <- self$beta_hat
+                      std_errors <- sqrt(diag(self$var_beta_hat))  # Standard errors
+                      t_values <- self$t_beta  # t-values
+                      df <- self$df  # Degrees of freedom
+                      sigma_squared <- self$sigma_squared  # Residual variance
+
+                      # Calculate p-values (two-sided t-test)
+                      p_values <- 2 * (1 - pt(abs(t_values), df = df))
+
+                      # Combine into a matrix for output
+                      coef_table <- data.frame(
+                        Estimate = as.vector(coefs),
+                        `Std. Error` = std_errors,
+                        `t value` = t_values,
+                        `Pr(>|t|)` = p_values,
+                        row.names = rownames(coefs)
+                      )
+
+                      # Print coefficients and statistics
+                      cat("Coefficients:\n")
+                      print(coef_table)
+
+                      # Print residual standard error and degrees of freedom
+                      cat("\nResidual standard error:", sqrt(sigma_squared), "on", df, "degrees of freedom\n")
                     }
+
                   )
 )
+data(iris)
+
+# Define the formula
+formula <- Petal.Length ~ Sepal.Length + Sepal.Width
+
+# Create an instance of linreg class
+model <- linreg$new(formula, iris)
+
+# Print the summary
+model$summary()
+
 
