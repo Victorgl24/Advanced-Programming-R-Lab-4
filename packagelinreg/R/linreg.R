@@ -5,6 +5,7 @@
 #' @importFrom R6 R6Class
 #' @field formula A formula object describing the model.
 #' @field data A data frame containing the variables in the model.
+#' @field data_name contains name of data set
 #' @field X The model matrix generated from the formula and data.
 #' @field y The response variable (dependent variable).
 #' @field beta_hat The estimated regression coefficients.
