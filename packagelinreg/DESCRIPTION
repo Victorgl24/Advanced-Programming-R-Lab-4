@@ -8,12 +8,13 @@ Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 Depends: R (>= 3.5.0)
 Imports: 
-  ggplot2
+  ggplot2,
+  R6
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
     roxygen2
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
