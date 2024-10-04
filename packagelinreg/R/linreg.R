@@ -21,6 +21,7 @@ linreg <- R6Class("linreg",
                   public = list(
                     formula = NULL,
                     data = NULL,
+                    data_name = NULL,
                     X = NULL,
                     y = NULL,
                     beta_hat = NULL,
@@ -41,6 +42,7 @@ linreg <- R6Class("linreg",
                     initialize = function(formula, data) {
                       self$formula <- formula
                       self$data <- data
+                      self$data_name <- deparse(substitute(data))
                       self$X <- model.matrix(formula, data)
                       self$y <- data[[all.vars(formula)[1]]]
                       
@@ -67,6 +69,7 @@ linreg <- R6Class("linreg",
                     #' @description
                     #' Prints the coefficients in an orderly manner
                     print = function() {
+                      cat("linreg(formula = ", deparse(self$formula), ", data = ", self$data_name, ")\n", sep = "")
                       coef_names <- rownames(self$beta_hat)
                       values <- as.vector(self$beta_hat)
                       max_width <- max(nchar(coef_names), nchar(format(values, digits = 3, nsmall = 2)))
@@ -86,13 +89,13 @@ linreg <- R6Class("linreg",
                     #' @description
                     #' Returns the values that the model predicted
                                         
-                    predict = function() {
+                    pred = function() {
                       return(self$y_hat)
                     },
                     
                     #' @description
                     #' Returns the models residuals
-                    residuals = function() {
+                    resid = function() {
                       return(self$e_hat)
                     },
                     
@@ -100,7 +103,7 @@ linreg <- R6Class("linreg",
                     #' Returns the models coefficients as a named vector
                     #' @return coefficients as named vector
                     
-                    coefficients = function() {
+                    coef = function() {
                       named_vec <- as.numeric(self$beta_hat)
                       names(named_vec) <- rownames(self$beta_hat)
                       return(named_vec)
@@ -155,7 +158,7 @@ linreg <- R6Class("linreg",
                                   "Residuals vs Fitted") 
                       
                       # Standardized sqrt residuals
-                      standardized_residuals <- scale(self$residuals())
+                      standardized_residuals <- scale(self$resid())
                       sqrt_abs_standardized_residuals <- sqrt(abs(standardized_residuals))
                       
                       plot_helper(
