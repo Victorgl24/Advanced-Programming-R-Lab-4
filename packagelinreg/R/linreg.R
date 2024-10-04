@@ -1,161 +1,130 @@
-#' Linear Regression Function
-#'
-#' This function performs linear regression using ordinary least squares.
-#'
-#' @param formula A formula object describing the model.
-#' @param data A data frame containing the variables in the model.
-#' @return An object of class "linreg" with computed regression statistics.
-#'
-#' @examples
-#' data(mtcars)
-#' fit <- linreg(mpg ~ wt + hp, data = mtcars)
-#' print(fit)
+# Load the R6 package
+library(R6)
+library(ggplot2)
 
+# Define the linreg R6 class
+LinReg <- R6Class("LinReg",
+                  public = list(
+                    formula = NULL,
+                    data = NULL,
+                    X = NULL,
+                    y = NULL,
+                    beta_hat = NULL,
+                    y_hat = NULL,
+                    e_hat = NULL,
+                    df = NULL,
+                    sigma_squared = NULL,
+                    var_beta_hat = NULL,
+                    t_beta = NULL,
+                    
+                    # Perform linear regression
+                    initialize = function(formula, data) {
+                      self$formula <- formula
+                      self$data <- data
+                      self$X <- model.matrix(formula, data)
+                      self$y <- data[[all.vars(formula)[1]]]
+                      
+                      # Calculate regression coefficients (beta)
+                      self$beta_hat <- solve(t(self$X) %*% self$X) %*% t(self$X) %*% self$y
+                      
+                      # Calculate fitted values (y_hat) and residuals (e_hat)
+                      self$y_hat <- self$X %*% self$beta_hat
+                      self$e_hat <- self$y - self$y_hat
+                      
+                      # Degrees of freedom
+                      self$df <- nrow(self$X) - ncol(self$X)
+                      
+                      # Residual variance
+                      self$sigma_squared <- sum(self$e_hat^2) / self$df
+                      
+                      # Variance of the regression coefficients
+                      self$var_beta_hat <- self$sigma_squared * solve(t(self$X) %*% self$X)
+                      
+                      # t-values for each coefficient
+                      self$t_beta <- self$beta_hat / sqrt(diag(self$var_beta_hat))
+                    },
+                    
+                    # Print method for linreg object
+                    print = function() {
+                      coef_names <- rownames(self$beta_hat)
+                      values <- as.vector(self$beta_hat)
+                      max_width <- max(nchar(coef_names), nchar(format(values, digits = 3, nsmall = 2)))
+                      
+                      cat("Coefficients:\n")
+                      for (name in coef_names) {
+                        cat(format(name, width = max_width, justify = "right"), " ")
+                      }
+                      cat("\n")
+                      
+                      for (value in values) {
+                        cat(format(value, digits = 3, nsmall = 2, width = max_width, justify = "right"), " ")
+                      }
+                      cat("\n")
+                    },
+                    
+                    # Getter method for predicted values
+                    predict = function() {
+                      return(self$y_hat)
+                    },
+                    
+                    # Getter method for residuals
+                    residuals = function() {
+                      return(self$e_hat)
+                    },
+                    
+                    # Getter method for coefficients
+                    coefficients = function() {
+                      named_vec <- as.numeric(self$beta_hat)
+                      names(named_vec) <- rownames(self$beta_hat)
+                      return(named_vec)
+                    },
+                    
+                    # Plot method for linreg object
+                    plot = function() {
+                      plot_data <- data.frame(
+                        Fitted = self$y_hat,
+                        Residuals = self$e_hat,
+                        Index = 1:length(self$e_hat)
+                      )
+                      
+                      # Threshold for outliers with large residuals
+                      threshold <- 2.5
+                      plot_data$Influential <- abs(scale(self$e_hat)) > threshold
+                      
+                      p <- ggplot(plot_data, aes(x = Fitted, y = Residuals)) +
+                        geom_point(shape = 1, color = "black", size = 3, stroke = 1.5) +  # Open circle points
+                        geom_hline(yintercept = 0, linetype = "dotted", color = "black", linewidth = 1) +
+                        stat_summary(fun = median, geom = "line", aes(group = 1), color = "red", linewidth = 1.2) +
+                        geom_text(
+                          data = subset(plot_data, Influential == TRUE),
+                          aes(label = Index),
+                          hjust = +1.3, vjust = -0.3, color = "black", size = 3
+                        ) +
+                        labs(
+                          title = "Residuals vs Fitted",
+                          x = paste("Fitted values\n lm(", deparse(self$formula),")"),
+                          y = "Residuals"
+                        ) + 
+                        theme_minimal() + 
+                        theme(
+                          panel.grid.major = element_blank(),
+                          panel.grid.minor = element_blank(),
+                          panel.border = element_rect(color = "black", fill = NA, size = 1),
+                          axis.text.y = element_text(angle = 90, vjust = 0.5)
+                        )
+                      
+                      print(p)
+                    },
+                    
+                    # Summary method placeholder
+                    summary = function() {
+                      cat("TODO: Summary method to be implemented\n")
+                    }
+                  )
+)
 
-
-linreg <- function(formula, data) {
-
-  # Extract model matrix X and dependent variable y
-  X <- model.matrix(formula, data)
-  y <- data[[all.vars(formula)[1]]]
-
-  # Calculate regression coefficients (beta)
-  beta_hat <- solve(t(X) %*% X) %*% t(X) %*% y # beta_hat = (X^T*X)-1*X^t*y 
-
-  # Calculate fitted values (y_hat) and residuals (e_hat)
-  y_hat <- X %*% beta_hat 
-  e_hat <- y - y_hat 
-
-  # Degrees of freedom
-  df <- nrow(X) - ncol(X) 
-
-  # Residual variance
-  sigma_squared <- sum(e_hat^2) / df
-
-  # Variance of the regression coefficients
-  var_beta_hat <- sigma_squared * solve(t(X) %*% X)
-
-  # t-values for each coefficient
-  t_beta <- beta_hat / sqrt(diag(var_beta_hat))
-  # Create and return the linreg object
-  linreg_object <- list(
-    coefficients = beta_hat,
-    fitted.values = y_hat,
-    residuals = e_hat,
-    df = df,
-    sigma_squared = sigma_squared,
-    var_coefficients = var_beta_hat,
-    t_values = t_beta
-  )
-
-  class(linreg_object) <- "linreg"
-  return(linreg_object)
-}
-
-#' Print method for linreg objects
-#'
-#' Prints the coefficients of the model.
-#'
-#' @param x An object of class "linreg".
-#'
-print.linreg <- function(object) {
-  # Extract coefficient names and values
-  coefs <- object$coefficients
-  coef_names <- rownames(coefs)
-  values <- as.vector(coefs)
-  
-  max_width <- max(nchar(coef_names), nchar(format(values, digits = 3, nsmall = 2)))
-  
-  # Format the output
-  cat("Coefficients:\n")
-  
-  for (name in coef_names) {
-    cat(format(name, width = max_width, justify = "right"), " ")
-  }
-  cat("\n")
-  
-  # Print the values in a single row, right-aligned under the corresponding names
-  for (value in values) {
-    cat(format(value, digits = 3, nsmall = 2, width = max_width, justify = "right"), " ")
-  }
-  cat("\n")
-}
-
-pred.linreg <- function(object){
-  return(object$fitted_values)
-}
-
-resid.linreg <- function(object){
-  return (object$residuals)
-}
-
-coef.linreg <- function(object){
-  named_vec = c(as.numeric(object$coefficients))
-  names(named_vec) = rownames(object$coefficients)
-  return (named_vec)
-}
-
-#' Plot method for linreg objects using ggplot2
-#'
-#' Plots the residuals vs fitted values using ggplot2, and labels influential points.
-#'
-#' @param object An object of class "linreg".
-#' @return A ggplot2 residuals vs fitted plot with annotated influential points.
-#' @importFrom ggplot2 ggplot aes geom_point geom_hline geom_smooth stat_summary geom_text labs theme_minimal theme element_text
-#' @export
-plot.linreg <- function(object) {
-  # Create a data frame for ggplot
-  plot_data <- data.frame(
-    Fitted = object$fitted.values,
-    Residuals = object$residuals,
-    Index = 1:length(object$residuals)  # Add the observation index
-  )
-  
-  # Set a threshold for labeling large residuals (e.g., standardized residuals > 2)
-  threshold <- 2.685
-  plot_data$Influential <- abs(scale(object$residuals)) > threshold
-  
-  # Create the Residuals vs Fitted plot using ggplot2
-  p <- ggplot(plot_data, aes(x = Fitted, y = Residuals)) +
-    geom_point(shape = 1, color = "black", size = 3, stroke = 1.5) +  # Open circle points
-    
-    # Add a horizontal line at 0
-    geom_hline(yintercept = 0, linetype = "dotted", color = "black", size = 1) +
-    
-    # Add segments to connect medians of residuals for each fitted value
-    stat_summary(fun = median, geom = "line", aes(group = 1), color = "red", size = 1.2) +
-    
-    # Annotate influential points with their observation index
-    ggplot2::geom_text(
-      data = subset(plot_data, Influential == TRUE),  # Only label influential points
-      aes(label = Index),
-      hjust = +1.3, vjust = -0.3, color = "black", size = 3
-    ) +
-    
-    labs(
-      title = "Residuals vs Fitted",
-      x = "Fitted values\n lm(Petal.Length~Species)",
-      y = "Residuals"
-    ) + 
-    theme_minimal() + 
-    theme(
-      panel.grid.major = element_blank(),   # Remove major grid lines
-      panel.grid.minor = element_blank(),   # Remove minor grid lines
-      panel.border = element_rect(color = "black", fill = NA, size = 1),  # Add black border around plot
-      axis.text.y = element_text(angle = 90, vjust = 0.5)  # Rotate y-axis labels 90 degrees
-    )
-  print(p)
-}
-
-
-
-summary.linreg <- function(object){
-  # TODO: implement function
-}
+# Example usage
 data(iris)
-
-mod_object <- linreg(Petal.Length~Species, data = iris)
-plot.linreg(mod_object)
-
-
-
+mod_object <- LinReg$new(Petal.Length ~ Species, data = iris)
+mod_object$print()
+mod_object$plot()
