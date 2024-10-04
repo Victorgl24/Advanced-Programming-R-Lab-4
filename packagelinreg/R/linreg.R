@@ -17,7 +17,7 @@
 #'
 #' @export
 # Define the linreg R6 class
-LinReg <- R6Class("LinReg",
+linreg <- R6Class("linreg",
                   public = list(
                     formula = NULL,
                     data = NULL,
