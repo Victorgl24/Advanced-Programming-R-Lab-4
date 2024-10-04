@@ -203,15 +203,3 @@ linreg <- R6Class("linreg",
 
                   )
 )
-data(iris)
-
-# Define the formula
-formula <- Petal.Length ~ Sepal.Length + Sepal.Width
-
-# Create an instance of linreg class
-model <- linreg$new(formula, iris)
-
-# Print the summary
-model$summary()
-
-
