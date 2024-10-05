@@ -1,23 +1,5 @@
-#' Linear Regression R6 Class
+#' Linear Regression R6 Class with QR decomposition
 #'
-#' This R6 class performs linear regression using ordinary least squares.
-#' @importFrom ggplot2 ggplot aes geom_point geom_hline stat_summary geom_text labs theme_minimal theme element_blank element_rect element_text element_line unit
-#' @importFrom R6 R6Class
-#' @field formula A formula object describing the model.
-#' @field data A data frame containing the variables in the model.
-#' @field data_name contains name of data set
-#' @field X The model matrix generated from the formula and data.
-#' @field y The response variable (dependent variable).
-#' @field beta_hat The estimated regression coefficients.
-#' @field y_hat The fitted values.
-#' @field e_hat The residuals.
-#' @field df Degrees of freedom of the model.
-#' @field sigma_squared Residual variance of the model.
-#' @field var_beta_hat Variance of the regression coefficients.
-#' @field t_beta t-values for each coefficient.
-#'
-#' @export
-# Define the linreg R6 class
 linreg <- R6Class("linreg",
                   public = list(
                     formula = NULL,
@@ -34,8 +16,7 @@ linreg <- R6Class("linreg",
                     t_beta = NULL,
 
                     #' @description
-                    #' Constructor method for linear regression model
-                    #' Performs the linear regression operation
+                    #' Constructor method for linear regression model using QR decomposition
                     #' @param formula A formula object that describes the model
                     #' @param data A data.frame containing the data on which the linear regression is performed
                     #' @return An R6 object representing the linear regression model
@@ -47,8 +28,13 @@ linreg <- R6Class("linreg",
                       self$X <- model.matrix(formula, data)
                       self$y <- data[[all.vars(formula)[1]]]
 
-                      # Calculate regression coefficients (beta)
-                      self$beta_hat <- solve(t(self$X) %*% self$X) %*% t(self$X) %*% self$y
+                      # QR decomposition
+                      qr_decomp <- qr(self$X)
+                      Q <- qr.Q(qr_decomp)  # Orthogonal matrix
+                      R <- qr.R(qr_decomp)  # Upper triangular matrix
+
+                      # Calculate regression coefficients (beta_hat) using QR decomposition
+                      self$beta_hat <- solve(R) %*% t(Q) %*% self$y
 
                       # Calculate fitted values (y_hat) and residuals (e_hat)
                       self$y_hat <- self$X %*% self$beta_hat
@@ -61,7 +47,7 @@ linreg <- R6Class("linreg",
                       self$sigma_squared <- sum(self$e_hat^2) / self$df
 
                       # Variance of the regression coefficients
-                      self$var_beta_hat <- self$sigma_squared * solve(t(self$X) %*% self$X)
+                      self$var_beta_hat <- self$sigma_squared * solve(t(R) %*% R)
 
                       # t-values for each coefficient
                       self$t_beta <- self$beta_hat / sqrt(diag(self$var_beta_hat))
@@ -89,24 +75,18 @@ linreg <- R6Class("linreg",
 
                     #' @description
                     #' Returns the values that the model predicted
-
-
                     pred = function() {
-
-			return(self$y_hat)
+                      return(self$y_hat)
                     },
 
                     #' @description
-                    #' Returns the models residuals
+                    #' Returns the model's residuals
                     resid = function() {
                       return(self$e_hat)
                     },
 
                     #' @description
-                    #' Returns the models coefficients as a named vector
-                    #' @return coefficients as named vector
-
-
+                    #' Returns the model's coefficients as a named vector
                     coef = function() {
                       named_vec <- as.numeric(self$beta_hat)
                       names(named_vec) <- rownames(self$beta_hat)
@@ -117,19 +97,17 @@ linreg <- R6Class("linreg",
                     #' Plots the residuals vs the fitted values using ggplot2
                     plot = function() {
                       plot_helper <- function(residuals, plot_title, y_label){
-                        # Index the data points to allow for index markers in the plot
                         plot_data <- data.frame(
                           Fitted = self$y_hat,
                           Residuals = residuals,
                           Index = 1:length(self$e_hat)
                         )
-                        # Threshold for outliers with large residuals
                         threshold <- 2.5
                         plot_data$Influential <- abs(scale(self$e_hat)) > threshold
                         p <- ggplot(plot_data, aes(x = Fitted, y = Residuals)) +
-                          geom_point(shape = 1, color = "black", size = 3, stroke = 1.5) + # Circles
-                          geom_hline(yintercept = 0, linetype = "dotted", color = "black", linewidth = 1) + # Dotted y_intercept line
-                          stat_summary(fun = median, geom = "line", color = "red", linewidth = 1.2) + # Line intercepting the median
+                          geom_point(shape = 1, color = "black", size = 3, stroke = 1.5) +
+                          geom_hline(yintercept = 0, linetype = "dotted", color = "black", linewidth = 1) +
+                          stat_summary(fun = median, geom = "line", color = "red", linewidth = 1.2) +
                           geom_text(
                             data = subset(plot_data, Influential == TRUE),
                             aes(label = Index),
@@ -142,73 +120,68 @@ linreg <- R6Class("linreg",
                           ) +
                           theme_minimal() +
                           theme(
-                            panel.grid.major = element_blank(),   # Remove major grid lines
-                            panel.grid.minor = element_blank(),   # Remove minor grid lines
-                            panel.border = element_rect(color = "black", fill = NA, size = 1),  # Add black border around plot
-                            axis.text.x = element_text(size = 14),  # Increase x-tick font
-                            axis.text.y = element_text(size = 14, angle = 90, vjust = 0.5),  # Increase y-tick font, rotate text
-                            axis.title.x = element_text(size = 16), # Increase x-label font size
-                            axis.title.y = element_text(size = 16), # Increase y-label font size
-                            axis.ticks.x = element_line(linewidth=0.5) ,  # Enable x-ticks
-                            axis.ticks.y = element_line(linewidth=0.5),  # Enable y-ticks
-                            axis.ticks.length = unit(0.3, "cm"), # Increase tick length
-                            plot.title = element_text(size = 20, hjust = 0.5)  # Center the title and increase its size
+                            panel.grid.major = element_blank(),
+                            panel.grid.minor = element_blank(),
+                            panel.border = element_rect(color = "black", fill = NA, size = 1),
+                            axis.text.x = element_text(size = 14),
+                            axis.text.y = element_text(size = 14, angle = 90, vjust = 0.5),
+                            axis.title.x = element_text(size = 16),
+                            axis.title.y = element_text(size = 16),
+                            axis.ticks.x = element_line(linewidth=0.5),
+                            axis.ticks.y = element_line(linewidth=0.5),
+                            axis.ticks.length = unit(0.3, "cm"),
+                            plot.title = element_text(size = 20, hjust = 0.5)
                           )
-                        p <- p + theme(aspect.ratio = 2/3) # Change aspect ratio
+                        p <- p + theme(aspect.ratio = 2/3)
                         print(p)
                       }
-                      plot_helper(self$e_hat, # The non standardized version
-                                  "Residuals",
-                                  "Residuals vs Fitted")
+                      plot_helper(self$e_hat, "Residuals", "Residuals vs Fitted")
 
-                      # Standardized sqrt residuals
                       standardized_residuals <- scale(self$resid())
                       sqrt_abs_standardized_residuals <- sqrt(abs(standardized_residuals))
 
                       plot_helper(
-                        residuals = sqrt_abs_standardized_residuals, # Standardize version
+                        residuals = sqrt_abs_standardized_residuals,
                         plot_title = "Scale−Location",
                         y_label = expression(sqrt(abs("Standardized residuals")))
                       )
                     },
 
                     #' @description
-			summary = function() {
-			  coefs <- self$beta_hat
-			  std_errors <- sqrt(diag(self$var_beta_hat))
-			  t_values <- self$t_beta
-			  df <- self$df
-			  sigma_squared <- self$sigma_squared  # Residual variance
-			  residual_se <- sqrt(sigma_squared)
+                    #' Summary of the linear regression model
+                    summary = function() {
+                      coefs <- self$beta_hat
+                      std_errors <- sqrt(diag(self$var_beta_hat))
+                      t_values <- self$t_beta
+                      df <- self$df
+                      sigma_squared <- self$sigma_squared
+                      residual_se <- sqrt(sigma_squared)
 
-			  p_values <- 2 * (1 - pt(abs(t_values), df = df))
+                      p_values <- 2 * (1 - pt(abs(t_values), df = df))
 
-			  # Add significance stars based on p-values
-			  significance <- ifelse(p_values < 0.001, "***",
-			                         ifelse(p_values < 0.01, "**",
-			                                ifelse(p_values < 0.05, "*", " ")))
+                      significance <- ifelse(p_values < 0.001, "***",
+                                             ifelse(p_values < 0.01, "**",
+                                                    ifelse(p_values < 0.05, "*", " ")))
 
-			  # Combine into a matrix for output
-			  coef_table <- data.frame(
-			    Estimate = format(as.vector(coefs), digits = 4, nsmall = 4),
-			    `Std. Error` = format(std_errors, digits = 4, nsmall = 4),
-			    `t value` = format(t_values, digits = 4, nsmall = 4),
-			    `Pr(>|t|)` = format(p_values, scientific = FALSE, digits = 4, nsmall = 4),
-			    Signif = significance,
-			    row.names = rownames(coefs)
-			  )
+                      coef_table <- data.frame(
+                        Estimate = format(as.vector(coefs), digits = 4, nsmall = 4),
+                        `Std. Error` = format(std_errors, digits = 4, nsmall = 4),
+                        `t value` = format(t_values, digits = 4, nsmall = 4),
+                        `Pr(>|t|)` = format(p_values, scientific = FALSE, digits = 4, nsmall = 4),
+                        Signif = significance,
+                        row.names = rownames(coefs)
+                      )
 
-			  cat("Coefficients:\n")
-			  print(coef_table, row.names = TRUE)
+                      cat("Coefficients:\n")
+                      print(coef_table, row.names = TRUE)
 
-			  cat("\nResidual standard error: ", format(residual_se, digits = 1),
-			      " on ", df, " degrees of freedom\n", sep = "")
-			}
-
+                      cat("\nResidual standard error: ", format(residual_se, digits = 1),
+                          " on ", df, " degrees of freedom\n", sep = "")
+                    }
                   )
 )
 
-
+# Testing with iris data
 data(iris)
 formula <- Petal.Length ~ Sepal.Length + Sepal.Width
 model <- linreg$new(formula, iris)
