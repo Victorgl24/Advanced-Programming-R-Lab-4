@@ -1,4 +1,4 @@
-Package: lab4victorchris
+Package: packagelinreg
 Type: Package
 Title: Implementation of Linear Regression and QR Decomposition for a University Assignment
 Version: 1.0
@@ -12,7 +12,12 @@ License: GPL-3 + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 Requires: R (>= 3.5.0)
+    R6,
+    ggplot2,
+    knitr,
+    rmarkdown
 Suggests:
     testthat (>= 3.0.0),
-    devtools
+    devtools,
 Config/testthat/edition: 3
+VignetteBuilder: knitr
