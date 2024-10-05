@@ -1,21 +1,18 @@
-Package: packagelinreg
+Package: lab4victorchris
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-Depends: R (>= 3.5.0)
-Imports: 
-  ggplot2,
-  R6
-License: GPL-3
+Title: Implementation of Linear Regression and QR Decomposition for a University Assignment
+Version: 1.0
+Date: 2024-10-05
+Author: Christian Kammerer, Victor Guillo
+Maintainer: Christian Kammerer <chrka821@student.liu.se>
+Description: This package implements two key functionalities:
+  1. Linear regression using ordinary least squares (OLS) with added support for QR decomposition.
+  2. QR decomposition is used to enhance numerical stability when solving linear regression equations.
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
-LazyData: true
-Suggests: 
-    testthat (>= 3.0.0),
-    roxygen2
-Config/testthat/edition: 3
-Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Requires: R (>= 3.5.0)
+Suggests:
+    testthat (>= 3.0.0),
+    devtools
+Config/testthat/edition: 3
