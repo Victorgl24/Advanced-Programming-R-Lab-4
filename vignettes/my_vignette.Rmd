@@ -32,7 +32,7 @@ We begin by loading the required libraries. You need `ggplot2` for visualization
 
 ```{r load-libraries, echo=TRUE, message=FALSE, warning=FALSE}
 library(ggplot2)
-library(packagelinreg)  # Assuming linreg is your package name
+library(packagelinreg)
 
 #Load dataset
 data(iris)
