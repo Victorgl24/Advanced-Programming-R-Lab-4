@@ -19,6 +19,7 @@
 #' @export
 linreg <- R6Class("linreg",
                   public = list(
+                    # Declare all class attributes as null for code clarity
                     formula = NULL,
                     data = NULL,
                     data_name = NULL,
@@ -44,28 +45,27 @@ linreg <- R6Class("linreg",
                       self$data_name <- deparse(substitute(data))
                       self$X <- model.matrix(formula, data)
                       self$y <- data[[all.vars(formula)[1]]]
-
+                      
                       # QR decomposition
                       qr_decomp <- qr(self$X)
-                      Q <- qr.Q(qr_decomp)  # Orthogonal matrix
-                      R <- qr.R(qr_decomp)  # Upper triangular matrix
-
-                      # Calculate regression coefficients (beta_hat) using QR decomposition
-                      self$beta_hat <- solve(R) %*% t(Q) %*% self$y
-
+                      
+                      # Calculate regression coefficients (beta_hat) using qr.coef, avoiding explicit solve()
+                      self$beta_hat <- qr.coef(qr_decomp, self$y)
+                      
                       # Calculate fitted values (y_hat) and residuals (e_hat)
                       self$y_hat <- self$X %*% self$beta_hat
                       self$e_hat <- self$y - self$y_hat
-
-                      # Degrees of freedom
-                      self$df <- nrow(self$X) - ncol(self$X)
-
+                      
+                      # Degrees of freedom (using rank of the QR decomposition)
+                      self$df <- nrow(self$X) - qr_decomp$rank
+                      
                       # Residual variance
                       self$sigma_squared <- sum(self$e_hat^2) / self$df
-
+                      
                       # Variance of the regression coefficients
+                      R <- qr.R(qr_decomp)  # Upper triangular matrix from QR decomposition
                       self$var_beta_hat <- self$sigma_squared * solve(t(R) %*% R)
-
+                      
                       # t-values for each coefficient
                       self$t_beta <- self$beta_hat / sqrt(diag(self$var_beta_hat))
                     },
@@ -113,14 +113,16 @@ linreg <- R6Class("linreg",
                     #' @description
                     #' Plots the residuals vs the fitted values using ggplot2
                     plot = function() {
-                      plot_helper <- function(residuals, plot_title, y_label){
+                      # Helper function is not documented as it is not publically accessible
+                      .plot_helper <- function(residuals, plot_title, y_label){
                         plot_data <- data.frame(
                           Fitted = self$y_hat,
                           Residuals = residuals,
                           Index = 1:length(self$e_hat)
                         )
-                        threshold <- 2.5
+                        threshold <- 2.5 # Threshold for outliers
                         plot_data$Influential <- abs(scale(self$e_hat)) > threshold
+                        
                         p <- ggplot(plot_data, aes(x = Fitted, y = Residuals)) +
                           geom_point(shape = 1, color = "black", size = 3, stroke = 1.5) +
                           geom_hline(yintercept = 0, linetype = "dotted", color = "black", linewidth = 1) +
@@ -130,13 +132,14 @@ linreg <- R6Class("linreg",
                             aes(label = Index),
                             hjust = +1.3, vjust = -0.3, color = "black", size = 3
                           ) +
-                          labs(
+                          labs( # Set title and axis labels
                             title = plot_title,
                             x = paste("Fitted values\n lm(", deparse(self$formula),")"),
                             y = y_label
                           ) +
                           theme_minimal() +
                           theme(
+                            # Remove grid lines, set border, enable ticks, change font sizes
                             panel.grid.major = element_blank(),
                             panel.grid.minor = element_blank(),
                             panel.border = element_rect(color = "black", fill = NA, size = 1),
@@ -149,15 +152,15 @@ linreg <- R6Class("linreg",
                             axis.ticks.length = unit(0.3, "cm"),
                             plot.title = element_text(size = 20, hjust = 0.5)
                           )
-                        p <- p + theme(aspect.ratio = 2/3)
+                        p <- p + theme(aspect.ratio = 2/3) # set aspect ratio
                         print(p)
                       }
-                      plot_helper(self$e_hat, "Residuals", "Residuals vs Fitted")
+                      .plot_helper(self$e_hat, "Residuals", "Residuals vs Fitted") # call helper method using non standardized
 
                       standardized_residuals <- scale(self$resid())
                       sqrt_abs_standardized_residuals <- sqrt(abs(standardized_residuals))
 
-                      plot_helper(
+                      .plot_helper( # standardized
                         residuals = sqrt_abs_standardized_residuals,
                         plot_title = "Scale-Location",
                         y_label = expression(sqrt(abs("Standardized residuals")))
@@ -197,3 +200,7 @@ linreg <- R6Class("linreg",
                     }
                   )
 )
+
+data(iris)
+model <- linreg$new(Petal.Length ~ Species, iris)
+model$plot()
