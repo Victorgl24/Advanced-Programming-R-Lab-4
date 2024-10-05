@@ -90,7 +90,7 @@ linreg <- R6Class("linreg",
                     #' @description
                     #' Returns the values that the model predicted
 
-                                        
+
                     pred = function() {
 
 			return(self$y_hat)
@@ -106,7 +106,7 @@ linreg <- R6Class("linreg",
                     #' Returns the models coefficients as a named vector
                     #' @return coefficients as named vector
 
-                    
+
                     coef = function() {
                       named_vec <- as.numeric(self$beta_hat)
                       names(named_vec) <- rownames(self$beta_hat)
@@ -173,33 +173,43 @@ linreg <- R6Class("linreg",
                     },
 
                     #' @description
-                    #' Placeholder for implementation of summary function
-                    summary = function() {
-                      coefs <- self$beta_hat
-                      std_errors <- sqrt(diag(self$var_beta_hat))  # Standard errors
-                      t_values <- self$t_beta  # t-values
-                      df <- self$df  # Degrees of freedom
-                      sigma_squared <- self$sigma_squared  # Residual variance
+			summary = function() {
+			  coefs <- self$beta_hat
+			  std_errors <- sqrt(diag(self$var_beta_hat))
+			  t_values <- self$t_beta
+			  df <- self$df
+			  sigma_squared <- self$sigma_squared  # Residual variance
+			  residual_se <- sqrt(sigma_squared)
 
-                      # Calculate p-values (two-sided t-test)
-                      p_values <- 2 * (1 - pt(abs(t_values), df = df))
+			  p_values <- 2 * (1 - pt(abs(t_values), df = df))
 
-                      # Combine into a matrix for output
-                      coef_table <- data.frame(
-                        Estimate = as.vector(coefs),
-                        `Std. Error` = std_errors,
-                        `t value` = t_values,
-                        `Pr(>|t|)` = p_values,
-                        row.names = rownames(coefs)
-                      )
+			  # Add significance stars based on p-values
+			  significance <- ifelse(p_values < 0.001, "***",
+			                         ifelse(p_values < 0.01, "**",
+			                                ifelse(p_values < 0.05, "*", " ")))
 
-                      # Print coefficients and statistics
-                      cat("Coefficients:\n")
-                      print(coef_table)
+			  # Combine into a matrix for output
+			  coef_table <- data.frame(
+			    Estimate = format(as.vector(coefs), digits = 4, nsmall = 4),
+			    `Std. Error` = format(std_errors, digits = 4, nsmall = 4),
+			    `t value` = format(t_values, digits = 4, nsmall = 4),
+			    `Pr(>|t|)` = format(p_values, scientific = FALSE, digits = 4, nsmall = 4),
+			    Signif = significance,
+			    row.names = rownames(coefs)
+			  )
 
-                      # Print residual standard error and degrees of freedom
-                      cat("\nResidual standard error:", sqrt(sigma_squared), "on", df, "degrees of freedom\n")
-                    }
+			  cat("Coefficients:\n")
+			  print(coef_table, row.names = TRUE)
+
+			  cat("\nResidual standard error: ", format(residual_se, digits = 1),
+			      " on ", df, " degrees of freedom\n", sep = "")
+			}
 
                   )
 )
+
+
+data(iris)
+formula <- Petal.Length ~ Sepal.Length + Sepal.Width
+model <- linreg$new(formula, iris)
+model$summary()
