@@ -1,6 +1,6 @@
 ---
 title: "Using the linreg Package"
-author: "Your Name"
+author: "Christian Kammerer, Victor Guillo"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
