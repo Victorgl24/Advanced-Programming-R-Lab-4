@@ -1,5 +1,22 @@
-#' Linear Regression R6 Class with QR decomposition
+#' Linear Regression R6 Class
 #'
+#' This R6 class performs linear regression using ordinary least squares.
+#' @importFrom ggplot2 ggplot aes geom_point geom_hline stat_summary geom_text labs theme_minimal theme element_blank element_rect element_text element_line unit
+#' @importFrom R6 R6Class
+#' @field formula A formula object describing the model.
+#' @field data A data frame containing the variables in the model.
+#' @field data_name contains name of data set
+#' @field X The model matrix generated from the formula and data.
+#' @field y The response variable (dependent variable).
+#' @field beta_hat The estimated regression coefficients.
+#' @field y_hat The fitted values.
+#' @field e_hat The residuals.
+#' @field df Degrees of freedom of the model.
+#' @field sigma_squared Residual variance of the model.
+#' @field var_beta_hat Variance of the regression coefficients.
+#' @field t_beta t-values for each coefficient.
+#'
+#' @export
 linreg <- R6Class("linreg",
                   public = list(
                     formula = NULL,
@@ -142,7 +159,7 @@ linreg <- R6Class("linreg",
 
                       plot_helper(
                         residuals = sqrt_abs_standardized_residuals,
-                        plot_title = "Scale−Location",
+                        plot_title = "Scale-Location",
                         y_label = expression(sqrt(abs("Standardized residuals")))
                       )
                     },
@@ -180,9 +197,3 @@ linreg <- R6Class("linreg",
                     }
                   )
 )
-
-# Testing with iris data
-data(iris)
-formula <- Petal.Length ~ Sepal.Length + Sepal.Width
-model <- linreg$new(formula, iris)
-model$summary()
