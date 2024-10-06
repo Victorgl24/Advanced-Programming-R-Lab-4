@@ -2,14 +2,9 @@
 % Please edit documentation in R/linreg.R
 \name{linreg}
 \alias{linreg}
-\title{Linear Regression R6 Class}
+\title{Linear Regression Using QR-Decomposition}
 \description{
-Linear Regression R6 Class
-
-Linear Regression R6 Class
-}
-\details{
-This R6 class performs linear regression using ordinary least squares.
+This R6 class performs linear regression using QR decomposition
 }
 \examples{
 data(iris)

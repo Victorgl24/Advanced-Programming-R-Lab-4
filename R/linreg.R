@@ -1,6 +1,5 @@
-#' Linear Regression R6 Class
-#'
-#' This R6 class performs linear regression using ordinary least squares.
+#' @title Linear Regression Using QR-Decomposition
+#' @description This R6 class performs linear regression using QR decomposition and adheres to the R6 standard.
 #' @importFrom ggplot2 ggplot aes geom_point geom_hline stat_summary geom_text labs theme_minimal theme element_blank element_rect element_text element_line unit
 #' @importFrom R6 R6Class
 #' @field formula A formula object describing the model.

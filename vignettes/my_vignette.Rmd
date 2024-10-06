@@ -9,17 +9,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-### Breakdown of the Vignette
-
-1. **Introduction**: Describes the goal of the vignette and introduces the `linreg` package.
-2. **Load Libraries**: Loads necessary libraries (`ggplot2` and your `packagelinreg` package).
-3. **Load Dataset**: Loads the `iris` dataset for use in the vignette.
-4. **Fitting the Linear Model**: Explains how to fit a linear model using the `linreg` function.
-5. **Display Model Summary**: Shows how to display a summary of the model, including estimates, t-values, p-values, etc.
-6. **Plotting Residuals**: Explains how to plot residuals and a scale-location plot for diagnostics.
-7. **Extracting Coefficients**: Demonstrates how to extract the regression coefficients.
-8. **Predicted Values**: Explains how to get the fitted values of the model.
-
 # Introduction
 
 This vignette explains how to use the `linreg` function from the `packagelinreg` package. We will walk through using a simple example with the well-known `iris` dataset.
@@ -28,22 +17,33 @@ The `linreg` function implements a linear regression model that mimics the behav
 
 # Load necessary libraries
 
-We begin by loading the required libraries. You need `ggplot2` for visualization and your `packagelinreg` package for running the linear regression model.
-
+We begin by installing and loading the package.
+```{r setup, echo=TRUE, message=FALSE, warning=FALSE, include=FALSE}
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+```
+```{r install-devtools, message=FALSE, warning=FALSE, results='hide'}
+install.packages("devtools")
+```
 ```{r load-libraries, echo=TRUE, message=FALSE, warning=FALSE}
-library(ggplot2)
+devtools::install_github("Victorgl24/Advanced-Programming-R-Lab-4")
 library(packagelinreg)
 
+```
+We load the data of our choice
+```{r}
 #Load dataset
 data(iris)
 head(iris)
-
+```
+And can now start fitting the model to the desired relation
+```{r}
 # Fitting the linear model using linreg package
 model <- linreg$new(Petal.Length ~ Sepal.Length + Sepal.Width, data = iris)
+```
 
-# Fitting the linear model using linreg package
-model <- linreg$new(Petal.Length ~ Sepal.Length + Sepal.Width, data = iris)
-
+Now that our model is fitted we have a wide range of functions that helps us
+better understand our model
+```{r}
 # Display model summary
 model$summary()
 
@@ -66,6 +66,8 @@ predictions <- model$pred()
 print(predictions)
 ```
 
+A great video to better understand the concept of linear regression: https://www.youtube.com/watch?v=7ArmBVF2dCs <br> 
+The documentation of the original lm package mentioned previously: https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/lm
 
 
 
