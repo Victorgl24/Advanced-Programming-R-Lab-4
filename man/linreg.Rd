@@ -4,7 +4,7 @@
 \alias{linreg}
 \title{Linear Regression Using QR-Decomposition}
 \description{
-This R6 class performs linear regression using QR decomposition
+This R6 class performs linear regression using QR decomposition and adheres to the R6 standard.
 }
 \examples{
 data(iris)

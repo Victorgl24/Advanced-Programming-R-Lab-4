@@ -1,0 +1,75 @@
+---
+title: "Using the RidgeRegressor Class"
+author: "Christian Kammerer, Victor Guillo"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using the RidgeRegressor Class}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+This vignette explains how to use the `RidgeRegressor` class from the `packagelinreg` package. We will use a simple example with the `mtcars` dataset.
+
+The `RidgeRegressor` class implements a ridge regression model, supporting both least-squares and QR decomposition methods for estimating coefficients.
+
+# Load necessary libraries
+
+We begin by installing and loading the package.
+```{r setup, echo=TRUE, message=FALSE, warning=FALSE, results='hide'}
+# Install the package if not already installed
+devtools::install_github("Victorgl24/Advanced-Programming-R-Lab-4")
+
+
+# Load the package
+library(packagelinreg)
+```
+We load the data of our choice
+```{r}
+#Load dataset
+data(mtcars)
+head(mtcars)
+```
+And can now start fitting the model to the desired relation
+```{r}
+# Fitting the ridge regression model
+model <- RidgeRegressor$new(formula = mpg ~ hp + wt, data = mtcars, lambda = 0.1)
+```
+
+Now that our model is fitted we can have a look at the coefficients or use the model for predictions
+better understand our model
+```{r fig.width=8, fig.height=5}
+# Extract coefficients
+coefs <- model$coef()
+print(coefs)
+
+# Get predicted values
+predicted_values <- model$predict()
+print(predicted_values)
+```
+
+```{r fig.width=7, fig.height=5, echo=FALSE}
+# Predicted vs Actual Plot
+# We assume `model` has already been created with RidgeRegressor in earlier sections
+
+# Extract the actual and predicted values
+actual_values <- mtcars$mpg
+predicted_values <- model$predict()
+
+# Create a plot to visualize the results
+plot(actual_values, predicted_values,
+     main = "Predicted vs Actual Values",
+     xlab = "Actual MPG",
+     ylab = "Predicted MPG",
+     pch = 16, col = "blue")
+abline(0, 1, col = "red", lwd = 2)  # Add a 45-degree reference line
+legend("topleft", legend = c("Predicted", "45-degree line"),
+       col = c("blue", "red"), pch = c(16, NA), lty = c(NA, 1), lwd = 2)
+
+```
+
+
+
+

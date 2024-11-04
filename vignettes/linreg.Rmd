@@ -39,6 +39,7 @@ And can now start fitting the model to the desired relation
 ```{r}
 # Fitting the linear model using linreg package
 model <- linreg$new(Petal.Length ~ Sepal.Length + Sepal.Width, data = iris)
+
 ```
 
 Now that our model is fitted we have a wide range of functions that helps us
