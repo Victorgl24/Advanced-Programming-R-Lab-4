@@ -74,10 +74,63 @@
                               coef = function() {
                                 return(self$coefficients)
                               }
+                              
+                             
+                              
+                       
+                              
                             )
   )
   
-  # Load the mtcars dataset
+  library(nycflights13)
+  library(dplyr)
+
+  
+  AirportDelayVisualizer <- R6Class("AirportDelayVisualizer",
+                                    public = list(
+                                      airport_data = NULL,
+                                      delay_data = NULL,
+                                      
+                                      # Initialize the class and prepare data
+                                      initialize = function() {
+                                        self$prepare_data()
+                                      },
+                                      
+                                      # Prepare data: Calculate mean delays and join with airport info
+                                      prepare_data = function() {
+                                        # Calculate mean delays by destination
+                                        self$delay_data <- flights %>%
+                                          group_by(dest) %>%
+                                          summarise(mean_delay = mean(arr_delay, na.rm = TRUE)) %>%
+                                          filter(!is.na(mean_delay))
+                                        
+                                        # Join with airport locations data
+                                        self$airport_data <- self$delay_data %>%
+                                          inner_join(airports, by = c("dest" = "faa")) %>%
+                                          select(dest, mean_delay, lon, lat)
+                                      },
+                                      
+                                      # Plot the data
+                                      plot = function() {
+                                        ggplot(self$airport_data, aes(x = lon, y = lat)) +
+                                          geom_point(aes(size = mean_delay, color = mean_delay)) +
+                                          scale_color_gradient(low = "blue", high = "red") +
+                                          labs(
+                                            title = "Average Arrival Delay by Airport",
+                                            x = "Longitude",
+                                            y = "Latitude",
+                                            color = "Mean Delay (min)",
+                                            size = "Mean Delay (min)"
+                                          ) +
+                                          theme_minimal()
+                                      }
+                                    )
+  )
+  
+  visualizer <- AirportDelayVisualizer$new()
+  visualizer$plot()
+  
+   # Load the mtcars dataset
   data(mtcars)
   
   # Initialize the RidgeRegressor with a formula, data, and lambda value
