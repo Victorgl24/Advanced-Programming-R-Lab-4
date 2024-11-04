@@ -20,15 +20,13 @@ RidgeRegressor <- R6Class(
     fitted_values = NULL,
     
     #' @description Initialize the RidgeRegressor Class
-    #'
     #' @param formula A formula object specifying the model.
     #' @param data A data frame containing the variables in the formula.
     #' @param lambda A positive numeric value for regularization strength.
     #' @param method The method for calculating coefficients, either
-    #'        `"least_squares"` (default) or `"qr"` for QR decomposition.
-    #' @return An object of class `RidgeRegressor`.
+    #'        least_squares (default) or qr for QR decomposition.
+    #' @return An object of class RidgeRegressor.
     #' @examples
-    #' # Example using mtcars dataset
     #' data(mtcars)
     #' model <- RidgeRegressor$new(formula = mpg ~ hp + wt, data = mtcars, lambda = 0.1)
     initialize = function(formula, data, lambda, method = "least_squares") {
@@ -40,13 +38,10 @@ RidgeRegressor <- R6Class(
       self$fit(method)
     },
     
-    #' Fit Method for Ridge Regression
-    #'
+    #' @description Fit Method for Ridge Regression
     #' Calculates ridge regression coefficients using either least-squares
     #' or QR decomposition based on the specified method.
-    #'
-    #' @param method Character string indicating the fitting method to use.
-    #'        Choices are `"least_squares"` or `"qr"`.
+    #' @param method Character string indicating the fitting method to use. Choices are \"least_squares\" or \"qr\".
     fit = function(method) {
       if (method == "least_squares") {
         X <- model.matrix(self$formula, self$data)
@@ -99,7 +94,6 @@ RidgeRegressor <- R6Class(
     #' @param newdata A data frame with the same predictors as the training data.
     #' @return A numeric vector of predictions.
     #' @examples
-    #' # Predictions on new data
     #' new_data <- data.frame(hp = c(110, 120), wt = c(2.5, 3.0))
     #' predictions <- model$predict(newdata = new_data)
     predict = function(newdata = NULL) {
@@ -112,13 +106,61 @@ RidgeRegressor <- R6Class(
       }
     },
     
-    #' Coef Method
-    #'
+    #' @description Coef Method
     #' Returns the ridge regression coefficients.
-    #'
     #' @return A numeric vector of coefficients.
     coef = function() {
       return(self$coefficients)
     }
   )
 )
+
+  
+#' @importFrom dplyr group_by summarise filter inner_join select %>%
+#' @importFrom ggplot2 ggplot aes geom_point scale_color_gradient labs theme_minimal
+#' @export
+AirportDelayVisualizer <- R6Class("AirportDelayVisualizer",
+                                  public = list(
+                                    airport_data = NULL,
+                                    delay_data = NULL,
+                                    
+                                    # Initialize the class and prepare data
+                                    initialize = function() {
+                                      self$prepare_data()
+                                    },
+                                    
+                                    # Prepare data: Calculate mean delays and join with airport info
+                                    prepare_data = function() {
+                                      # Calculate mean delays by destination
+                                      self$delay_data <- nycflights13::flights %>%
+                                        group_by(dest) %>%
+                                        summarise(mean_delay = mean(arr_delay, na.rm = TRUE)) %>%
+                                        filter(!is.na(mean_delay))
+                                      
+                                      # Join with airport locations data
+                                      self$airport_data <- self$delay_data %>%
+                                        inner_join(nycflights13::airports, by = c("dest" = "faa")) %>%
+                                        select(dest, mean_delay, lon, lat)
+                                    },
+                                    
+                                    # Plot the data
+                                    plot = function() {
+                                      p <- ggplot(self$airport_data, aes(x = lon, y = lat)) +
+                                        geom_point(aes(size = mean_delay, color = mean_delay)) +
+                                        scale_color_gradient(low = "blue", high = "red") +
+                                        labs(
+                                          title = "Average Arrival Delay by Airport",
+                                          x = "Longitude",
+                                          y = "Latitude",
+                                          color = "Mean Delay (min)",
+                                          size = "Mean Delay (min)"
+                                        ) +
+                                        theme_minimal()
+                                      
+                                      print(p)
+                                    }
+                                  )
+)
+
+visualizer <- AirportDelayVisualizer$new()
+visualizer$plot()

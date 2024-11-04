@@ -57,9 +57,6 @@ Returns the ridge regression coefficients.
 \item \href{#method-RidgeRegressor-print}{\code{RidgeRegressor$print()}}
 \item \href{#method-RidgeRegressor-predict}{\code{RidgeRegressor$predict()}}
 \item \href{#method-RidgeRegressor-coef}{\code{RidgeRegressor$coef()}}
-\item \href{#method-RidgeRegressor-resid}{\code{RidgeRegressor$resid()}}
-\item \href{#method-RidgeRegressor-summary}{\code{RidgeRegressor$summary()}}
-\item \href{#method-RidgeRegressor-plot}{\code{RidgeRegressor$plot()}}
 \item \href{#method-RidgeRegressor-clone}{\code{RidgeRegressor$clone()}}
 }
 }
@@ -117,7 +114,7 @@ or QR decomposition based on the specified method.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{method}}{Character string indicating the fitting method to use.
-       Choices are `"least_squares"` or `"qr"`.
+       Choices are \"least_squares\" or \"qr\".
 Print Method for Coefficients
 
 Displays the ridge regression coefficients.
@@ -181,36 +178,6 @@ Returns the ridge regression coefficients.
 \subsection{Returns}{
 A numeric vector of coefficients.
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-RidgeRegressor-resid"></a>}}
-\if{latex}{\out{\hypertarget{method-RidgeRegressor-resid}{}}}
-\subsection{Method \code{resid()}}{
-Returns the model's residuals
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{RidgeRegressor$resid()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-RidgeRegressor-summary"></a>}}
-\if{latex}{\out{\hypertarget{method-RidgeRegressor-summary}{}}}
-\subsection{Method \code{summary()}}{
-Summary of the linear regression model
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{RidgeRegressor$summary()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-RidgeRegressor-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-RidgeRegressor-plot}{}}}
-\subsection{Method \code{plot()}}{
-Plots the residuals vs the fitted values using ggplot2
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{RidgeRegressor$plot()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-RidgeRegressor-clone"></a>}}
