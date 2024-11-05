@@ -1,3 +1,4 @@
+ 
 ---
 title: "Using Ridge Regression with ridgereg and caret"
 output: rmarkdown::html_vignette
@@ -40,11 +41,10 @@ Simple Linear Regression
 # Fit a simple linear regression model
 lm_model <- lm(medv ~ ., data = trainData)
 summary(lm_model)
-
 ```
 
 #Evaluate Linear Models on Training Data
-We will use RMSE and R-squared as evaluation metrics.
+We will use RMSE and R-squared as evaluation metrics, and define the evaluate_model function here so it can be reused across models.
 
 ```{r}
 # Function to calculate RMSE and R-squared
@@ -55,16 +55,34 @@ evaluate_model <- function(model, data) {
   return(list(RMSE = RMSE, R2 = R2))
 }
 
+```
+
+#Fit Linear Regression Models
+Simple Linear Regression
+```{r}
+# Fit a simple linear regression model
+lm_model <- lm(medv ~ ., data = trainData)
+summary(lm_model)
+```
+
+
+Evaluate Linear Models on Training Data
+```{r}
 # Evaluate the simple linear regression model
 lm_results <- evaluate_model(lm_model, trainData)
+
+# Forward selection
 lm_forward <- step(lm(medv ~ 1, data = trainData), 
                    scope = ~ .,
                    direction = "forward")
 lm_forward_results <- evaluate_model(lm_forward, trainData)
+
+# Display results
 lm_results
 lm_forward_results
 
 ```
+
 
 #Fit Ridge Regression Model with RidgeRegressor
 Using the RidgeRegressor function from ridgereg, we will fit a ridge regression model and explore different values of lambda.
@@ -92,25 +110,30 @@ cv_results <- sapply(lambda_values, function(l) {
 plot(lambda_values, cv_results, type = "b", xlab = "Lambda", ylab = "RMSE")
 best_lambda <- lambda_values[which.min(cv_results)]
 best_lambda
-
 ```
 
 #Evaluate the Ridge Regression Model on Test Data
 Finally, we will evaluate the performance of the best ridge regression model.
 
 ```{r}
-# Fit final ridge model with the best lambda
-final_ridge_model <- RidgeRegressor$new(formula = medv ~ ., data = trainData, lambda = best_lambda)
-# Function to calculate RMSE and R-squared
 evaluate_model <- function(model, data) {
-  # Use the R6 method directly
+  # Use the R6 predict method directly
   preds <- model$predict(newdata = data)
   RMSE <- sqrt(mean((data$medv - preds)^2))
   R2 <- 1 - sum((data$medv - preds)^2) / sum((data$medv - mean(data$medv))^2)
   return(list(RMSE = RMSE, R2 = R2))
 }
+
+```
+
+
+```{r}
+# Fit final ridge model with the best lambda
+
+final_ridge_model <- RidgeRegressor$new(formula = medv ~ ., data = trainData, lambda = best_lambda)
 ridge_results <- evaluate_model(final_ridge_model, testData)
 ridge_results
+
 ```
 
 #Compare Models and Conclude

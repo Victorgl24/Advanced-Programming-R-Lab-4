@@ -17,7 +17,7 @@ Imports:
   R6,
   ggplot2,
   dplyr,
-    nycflights13,
+  nycflights13,
 Suggests:
   testthat (>= 3.0.0),
   devtools,
