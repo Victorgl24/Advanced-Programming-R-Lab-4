@@ -113,8 +113,8 @@ RidgeRegressor <- R6Class(
 )
 
   
-#' Airport Delay Visualizer
-#'
+#' @title Airport Delay Visualizer
+#' @description
 #' This R6 class provides a visual representation of the mean delay of flights for different airports,
 #' based on longitude and latitude information. It uses data from the `nycflights13` package.
 #'
