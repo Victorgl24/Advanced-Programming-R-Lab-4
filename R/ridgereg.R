@@ -93,9 +93,6 @@ RidgeRegressor <- R6Class(
     #'
     #' @param newdata A data frame with the same predictors as the training data.
     #' @return A numeric vector of predictions.
-    #' @examples
-    #' new_data <- data.frame(hp = c(110, 120), wt = c(2.5, 3.0))
-    #' predictions <- model$predict(newdata = new_data)
     predict = function(newdata = NULL) {
       if (is.null(newdata)) {
         return(self$fitted_values)
@@ -161,6 +158,3 @@ AirportDelayVisualizer <- R6Class("AirportDelayVisualizer",
                                     }
                                   )
 )
-
-visualizer <- AirportDelayVisualizer$new()
-visualizer$plot()

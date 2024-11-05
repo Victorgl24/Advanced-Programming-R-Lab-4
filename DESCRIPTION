@@ -16,12 +16,15 @@ Depends:
 Imports: 
   R6,
   ggplot2,
-  dplyr,
-  nycflights13,
+  dplyr
 Suggests:
   testthat (>= 3.0.0),
   devtools,
   knitr,
-  rmarkdown
+  rmarkdown,
+  caret,
+  mlbench,
+  nycflights13,
+  MASS
 Config/testthat/edition: 3
 VignetteBuilder: knitr

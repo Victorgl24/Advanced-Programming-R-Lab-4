@@ -1,4 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^\\.github$
+^\.github$
+^\.github/.*$
 ^Rplots\\.pdf$
