@@ -29,6 +29,7 @@ RidgeRegressor <- R6Class(
     #' @examples
     #' data(mtcars)
     #' model <- RidgeRegressor$new(formula = mpg ~ hp + wt, data = mtcars, lambda = 0.1)
+    #' @export
     initialize = function(formula, data, lambda, method = "least_squares") {
       if (lambda <= 0)
         stop("Lambda should be a positive number.")
