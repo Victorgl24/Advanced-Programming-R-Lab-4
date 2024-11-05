@@ -113,20 +113,35 @@ RidgeRegressor <- R6Class(
 )
 
   
+#' Airport Delay Visualizer
+#'
+#' This R6 class provides a visual representation of the mean delay of flights for different airports,
+#' based on longitude and latitude information. It uses data from the `nycflights13` package.
+#'
+#' The class utilizes `dplyr` for data manipulation and `ggplot2` for visualization.
+#'
 #' @importFrom dplyr group_by summarise filter inner_join select %>%
 #' @importFrom ggplot2 ggplot aes geom_point scale_color_gradient labs theme_minimal
 #' @export
 AirportDelayVisualizer <- R6Class("AirportDelayVisualizer",
                                   public = list(
+                                    # Dataset containing airport information
                                     airport_data = NULL,
+                                    
+                                    # Dataset containing delay information
                                     delay_data = NULL,
                                     
-                                    # Initialize the class and prepare data
+                                    #' Initialize the AirportDelayVisualizer class
+                                    #'
+                                    #' This method prepares the data needed for visualization
                                     initialize = function() {
                                       self$prepare_data()
                                     },
                                     
-                                    # Prepare data: Calculate mean delays and join with airport info
+                                    #' Prepare Data
+                                    #'
+                                    #' Calculates the mean delays by airport destination and merges the data with
+                                    #' airport location information (longitude and latitude).
                                     prepare_data = function() {
                                       # Calculate mean delays by destination
                                       self$delay_data <- nycflights13::flights %>%
@@ -140,7 +155,13 @@ AirportDelayVisualizer <- R6Class("AirportDelayVisualizer",
                                         select(dest, mean_delay, lon, lat)
                                     },
                                     
-                                    # Plot the data
+                                    #' Plot Mean Airport Delays
+                                    #'
+                                    #' Creates a scatter plot using `ggplot2` to visualize mean flight delays at
+                                    #' different airport locations. The size and color of each point represents the
+                                    #' mean delay in minutes.
+                                    #'
+                                    #' @return A ggplot object displaying mean delays at airports by location
                                     plot = function() {
                                       p <- ggplot(self$airport_data, aes(x = lon, y = lat)) +
                                         geom_point(aes(size = mean_delay, color = mean_delay)) +
