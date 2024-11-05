@@ -56,6 +56,7 @@ RidgeRegressor <- R6Class(
         I[1, 1] <- 0  # Don't regularize the intercept
         self$coefficients <- solve(t(X) %*% X + self$lambda * I) %*% t(X) %*% y
         self$fitted_values <- X %*% self$coefficients
+        
       } else if (method == "qr") {
         X <- model.matrix(self$formula, self$data)
         y <- model.response(model.frame(self$formula, self$data))
@@ -63,22 +64,20 @@ RidgeRegressor <- R6Class(
         # Center and scale X, excluding the intercept (first column)
         X[, -1] <- scale(X[, -1], center = TRUE, scale = TRUE)
         
-        # QR decomposition
+        # Perform QR decomposition
         QR <- qr(X)
         Q <- qr.Q(QR)
         R <- qr.R(QR)
         
-        # Ridge regularization adjustment
-        R_diag <- diag(R)
-        R_diag[-1] <- R_diag[-1] + self$lambda
-        R <- diag(R_diag)
+        # Modify R by adding lambda to the diagonal elements (ridge penalty)
+        diag(R)[-1] <- diag(R)[-1] + self$lambda
         
         # Compute ridge coefficients using QR decomposition
-        self$coefficients <- solve(t(R) %*% R + self$lambda * diag(ncol(R))) %*% t(R) %*% t(Q) %*% y
+        self$coefficients <- solve(R) %*% t(Q) %*% y
         self$fitted_values <- X %*% self$coefficients
       }
-      
-    },
+    }
+    ,
     
     #' Print Method for Coefficients
     #'

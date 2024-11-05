@@ -1,4 +1,4 @@
-context("linreg")
+
 
 data("iris")
 
