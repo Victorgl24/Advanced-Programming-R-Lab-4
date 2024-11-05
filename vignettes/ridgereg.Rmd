@@ -8,7 +8,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r}
+```{r, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(caret)
 library(dplyr)
@@ -22,7 +22,7 @@ This vignette demonstrates the use of ridge regression with the RidgeRegressor f
 
 The `RidgeRegressor` class implements a ridge regression model, supporting both least-squares and QR decomposition methods for estimating coefficients.
 
-#Load and Split the Data
+# Load and Split the Data
 We will split the BostonHousing data into training and test sets.
 ```{r}
 data("BostonHousing", package = "mlbench")
@@ -35,7 +35,7 @@ testData <- BostonHousing[-trainIndex, ]
 
 ```
 
-#Fit Linear Regression Models
+# Fit Linear Regression Models
 Simple Linear Regression
 ```{r}
 # Fit a simple linear regression model
@@ -43,7 +43,7 @@ lm_model <- lm(medv ~ ., data = trainData)
 summary(lm_model)
 ```
 
-#Evaluate Linear Models on Training Data
+# Evaluate Linear Models on Training Data
 We will use RMSE and R-squared as evaluation metrics, and define the evaluate_model function here so it can be reused across models.
 
 ```{r}
@@ -57,7 +57,7 @@ evaluate_model <- function(model, data) {
 
 ```
 
-#Fit Linear Regression Models
+# Fit Linear Regression Models
 Simple Linear Regression
 ```{r}
 # Fit a simple linear regression model
@@ -84,7 +84,7 @@ lm_forward_results
 ```
 
 
-#Fit Ridge Regression Model with RidgeRegressor
+# Fit Ridge Regression Model with RidgeRegressor
 Using the RidgeRegressor function from ridgereg, we will fit a ridge regression model and explore different values of lambda.
 
 ```{r}
@@ -94,7 +94,7 @@ ridge_model$print()
 
 ```
 
-#Hyperparameter Tuning for lambda
+# Hyperparameter Tuning for lambda
 We will use cross-validation to find the best lambda value.
 
 ```{r}
@@ -112,7 +112,7 @@ best_lambda <- lambda_values[which.min(cv_results)]
 best_lambda
 ```
 
-#Evaluate the Ridge Regression Model on Test Data
+# Evaluate the Ridge Regression Model on Test Data
 Finally, we will evaluate the performance of the best ridge regression model.
 
 ```{r}
@@ -136,7 +136,7 @@ ridge_results
 
 ```
 
-#Compare Models and Conclude
+# Compare Models and Conclude
 Summarize and compare the performance of all models on the test set.
 
 ```{r}
@@ -149,7 +149,7 @@ comparison
 
 ```
 
-#Conclusion
+# Conclusion
 In this vignette, we demonstrated how to fit and evaluate linear and ridge regression models on the BostonHousing dataset. The results show that:
 Linear Regression achieved an RMSE of 4.717 and an R² of 0.735, indicating a reasonably good fit on the data.
 Forward Selection performed poorly, with an RMSE of 9.157 and an R² of 0.000, suggesting that this model failed to capture the variance in the dataset effectively, likely due to over-simplification or insufficient feature selection.
