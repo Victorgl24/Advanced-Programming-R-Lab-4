@@ -117,7 +117,8 @@ RidgeRegressor <- R6Class(
 #' @description
 #' This R6 class provides a visual representation of the mean delay of flights for different airports,
 #' based on longitude and latitude information. It uses data from the `nycflights13` package.
-#'
+#' @field airport_data Data regarding airports 
+#' @field delay_data Data regearding delays
 #' The class utilizes `dplyr` for data manipulation and `ggplot2` for visualization.
 #'
 #' @importFrom dplyr group_by summarise filter inner_join select %>%
