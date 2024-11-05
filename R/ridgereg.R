@@ -131,15 +131,13 @@ AirportDelayVisualizer <- R6Class("AirportDelayVisualizer",
                                     # Dataset containing delay information
                                     delay_data = NULL,
                                     
-                                    #' Initialize the AirportDelayVisualizer class
-                                    #'
+                                    #' @description Initialize the AirportDelayVisualizer class
                                     #' This method prepares the data needed for visualization
                                     initialize = function() {
                                       self$prepare_data()
                                     },
                                     
-                                    #' Prepare Data
-                                    #'
+                                    #' @description Prepare Data
                                     #' Calculates the mean delays by airport destination and merges the data with
                                     #' airport location information (longitude and latitude).
                                     prepare_data = function() {
@@ -155,7 +153,7 @@ AirportDelayVisualizer <- R6Class("AirportDelayVisualizer",
                                         select(dest, mean_delay, lon, lat)
                                     },
                                     
-                                    #' Plot Mean Airport Delays
+                                    #' @description Plot Mean Airport Delays
                                     #'
                                     #' Creates a scatter plot using `ggplot2` to visualize mean flight delays at
                                     #' different airport locations. The size and color of each point represents the
