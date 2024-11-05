@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(caret)
 library(dplyr)
 library(mlbench)  # For BostonHousing data
-library(packagelinreg)  # Replace with your package name
+library(packagelinreg) 
 ```
 
 # Introduction
