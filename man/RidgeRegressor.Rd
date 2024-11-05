@@ -92,13 +92,7 @@ or QR decomposition based on the specified method.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{method}}{Character string indicating the fitting method to use. Choices are \"least_squares\" or \"qr\".
-Print Method for Coefficients
-
-Displays the ridge regression coefficients.
-Predict Method
-
-Predicts the response variable for new data using the fitted model.}
+\item{\code{method}}{Character string indicating the fitting method to use. Choices are \"least_squares\" or \"qr\".}
 }
 \if{html}{\out{</div>}}
 }
@@ -107,10 +101,18 @@ Predicts the response variable for new data using the fitted model.}
 \if{html}{\out{<a id="method-RidgeRegressor-print"></a>}}
 \if{latex}{\out{\hypertarget{method-RidgeRegressor-print}{}}}
 \subsection{Method \code{print()}}{
+Print Method for Ridge Regression Coefficients
+Displays the ridge regression coefficients.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{RidgeRegressor$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+NULL
+Predict Method
+
+Predicts the response variable for new data using the fitted model.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-RidgeRegressor-predict"></a>}}
